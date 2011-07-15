@@ -68,8 +68,10 @@ public class Teflon {
         			downloadtext = "1,000,000 - 5,000,000";
         		}else if(entireDoc.contains("1,000 - 5,000")){
         			downloadtext = "1,000 - 5,000";
+        		}else if(entireDoc.contains("500 - 1,000")){
+        			downloadtext = "500 - 1,000";
         		}else{
-        			downloadtext = "0 - 1000";
+        			downloadtext = "0 - 500";
         		}
         Document sc = Jsoup.parse(document.getElementsByClass("carousel-page").html());
         Elements imgs = sc.select("img");
