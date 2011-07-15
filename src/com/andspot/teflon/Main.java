@@ -13,7 +13,7 @@ public class Main {
 	 */
 	public static void main(String[] args) throws IOException, JSONException {
 		Teflon t = new Teflon();
-		System.out.print(t.FindByPackageName("com.zkytale.showtimes").toString());
+		System.out.print(t.FindByPackageName("com.zkytale.showtimes.lite").toString());
 
 	}
 
