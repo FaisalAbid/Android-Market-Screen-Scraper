@@ -11,6 +11,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Collection;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -30,6 +31,12 @@ import com.andspot.jsonk.JSONObject;
 
 public class Teflon {
 
+	public JSONObject FindByURL(String url) throws JSONException{
+		String packagename = url.replace("https://market.android.com/details?id=", "").split("&")[0];
+		return FindByPackageName(packagename);
+
+	
+	}
 	
 	public JSONObject FindByPackageName(String packagename) throws JSONException{
 		URL u;
@@ -108,32 +115,38 @@ public class Teflon {
        Document dp = Jsoup.parse(document.getElementsByClass("buy-button-price").get(0).html());
    
       String price = dp.text().replace("CA$", "").replace("Buy", "").trim();
-   
-      URL uu = new URL("http://www.appbrain.com/app/"+packagename);
-      Document rev = Jsoup.parse(uu,199000);
-      Document a = Jsoup.parse(rev.getElementsByClass("comment").html());
       
-     Elements ratings = a.getElementsByClass("srating");
-     Elements commenter = a.getElementsByClass("commenter");
-     Elements comment = a.getElementsByClass("ctext");
-     
-     ArrayList<String> reviews = new ArrayList<String>();
-     try{
-	     for(int r = 0;r<comment.size()-1;r++){
-	    	 JSONObject jb = new JSONObject();
-	    	 String rate = ratings.get(r).toString().replace("\"></div>", "");
-	    	 rate = rate.replace("<div class=\"srating r", "");
-	    	 jb.put("Rating", rate);
-	    	 jb.put("Comment", comment.get(r).text());
-	    	 jb.put("commenter", commenter.get(r).text());
-	    	 reviews.add(jb.toString());
+      ArrayList<String> reviews;
+   try{
+	     URL uu = new URL("http://www.appbrain.com/app/"+packagename);
+	      Document rev = Jsoup.parse(uu,199000);
+	      Document a = Jsoup.parse(rev.getElementsByClass("comment").html());
+	      
+	     Elements ratings = a.getElementsByClass("srating");
+	     Elements commenter = a.getElementsByClass("commenter");
+	     Elements comment = a.getElementsByClass("ctext");
+	     
+	     reviews = new ArrayList<String>();
+	     try{
+		     for(int r = 0;r<comment.size()-1;r++){
+		    	 JSONObject jb = new JSONObject();
+		    	 String rate = ratings.get(r).toString().replace("\"></div>", "");
+		    	 rate = rate.replace("<div class=\"srating r", "");
+		    	 jb.put("Rating", rate);
+		    	 jb.put("Comment", comment.get(r).text());
+		    	 jb.put("commenter", commenter.get(r).text());
+		    	 reviews.add(jb.toString());
+		     }
+	     }catch(Exception e){
+	    	 e.printStackTrace();
 	     }
-     }catch(Exception e){
-    	 
-     }
 
-     
+	     
 
+   }catch(Exception e){
+	  reviews = null;
+   }
+ 
 
     
 	        JSONObject jb = new JSONObject();
@@ -147,11 +160,13 @@ public class Teflon {
 	        jb.put("CATEGORY", category);
 	        jb.put("TYPE",type);
 	        jb.put("PRICE",price);
-	        jb.put("REVIEWS", reviews);
+	       
+			jb.put("REVIEWS", reviews);
 	        jb.put("DOWNLOADTEXT",  downloadtext);
 			return jb;
 			
 		} catch (IOException e1) {
+			e1.printStackTrace();
 			return new JSONObject();
 		}
 		

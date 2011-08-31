@@ -12,9 +12,10 @@ public class Main {
 	 * @throws JSONException 
 	 */
 	public static void main(String[] args) throws IOException, JSONException {
-		Teflon t = new Teflon();
-		System.out.print(t.FindByPackageName("com.zkytale.showtimes.lite").toString());
+		//Teflon t = new Teflon();
+		//System.out.print(t.FindByURL("https://market.android.com/details?id=com.jimbl.campingtripplanner&feature=search_result"));
 
 	}
 
+	
 }
