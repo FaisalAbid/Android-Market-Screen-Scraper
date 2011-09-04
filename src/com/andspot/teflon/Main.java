@@ -12,8 +12,8 @@ public class Main {
 	 * @throws JSONException 
 	 */
 	public static void main(String[] args) throws IOException, JSONException {
-		//Teflon t = new Teflon();
-		//System.out.print(t.FindByURL("https://market.android.com/details?id=com.jimbl.campingtripplanner&feature=search_result"));
+		Teflon t = new Teflon();
+		System.out.print(t.FindByURL("https://market.android.com/details?id=com.jimbl.campingtripplanner&feature=search_result","info@andspot.com","QWERllandspot"));
 
 	}
 

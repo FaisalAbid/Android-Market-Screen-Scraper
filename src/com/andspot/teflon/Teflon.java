@@ -31,14 +31,14 @@ import com.andspot.jsonk.JSONObject;
 
 public class Teflon {
 
-	public JSONObject FindByURL(String url) throws JSONException{
+	public JSONObject FindByURL(String url,String username,String password) throws JSONException{
 		String packagename = url.replace("https://market.android.com/details?id=", "").split("&")[0];
-		return FindByPackageName(packagename);
+		return FindByPackageName(packagename,username,password);
 
 	
 	}
 	
-	public JSONObject FindByPackageName(String packagename) throws JSONException{
+	public JSONObject FindByPackageName(String packagename,String username,String password) throws JSONException{
 		URL u;
 		try {
 			u = new URL("https://market.android.com/details?id="+packagename);
@@ -116,39 +116,47 @@ public class Teflon {
    
       String price = dp.text().replace("CA$", "").replace("Buy", "").trim();
       
-      ArrayList<String> reviews;
+      ArrayList<String> reviews = new ArrayList<String>();
    try{
-	     URL uu = new URL("http://www.appbrain.com/app/"+packagename);
-	      Document rev = Jsoup.parse(uu,199000);
-	      Document a = Jsoup.parse(rev.getElementsByClass("comment").html());
-	      
-	     Elements ratings = a.getElementsByClass("srating");
-	     Elements commenter = a.getElementsByClass("commenter");
-	     Elements comment = a.getElementsByClass("ctext");
-	     
-	     reviews = new ArrayList<String>();
+	   
+	   MarketHack mh = new MarketHack();
+	  String appID =  mh.getAppID(username, password, packagename);
+	  reviews = mh.getReviews(username, password, appID);
+//	     URL uu = new URL("http://www.appbrain.com/app/"+packagename);
+//	      Document rev = Jsoup.parse(uu,199000);
+//	      Document a = Jsoup.parse(rev.getElementsByClass("comment").html());
+//	      
+//	     Elements ratings = a.getElementsByClass("srating");
+//	     Elements commenter = a.getElementsByClass("commenter");
+//	     Elements comment = a.getElementsByClass("ctext");
+//	     
+	   for(int i = 0;i<reviews.size();i++){
+		   JSONArray comment = new JSONArray(reviews.get(i));
 	     try{
-		     for(int r = 0;r<comment.size()-1;r++){
+		  
 		    	 JSONObject jb = new JSONObject();
-		    	 String rate = ratings.get(r).toString().replace("\"></div>", "");
-		    	 rate = rate.replace("<div class=\"srating r", "");
+		    	 //{response.getComments(i).getAuthorName(),response.getComments(i).getText(),response.getComments(i).getRating()+"",response.getComments(i).getCreationTime()+""};
+		    	 String rate = comment.getString(2);
+		    
 		    	 jb.put("Rating", rate);
-		    	 jb.put("Comment", comment.get(r).text());
-		    	 jb.put("commenter", commenter.get(r).text());
+		    	 jb.put("Comment", comment.get(1));
+		    	 jb.put("commenter", comment.get(0));
 		    	 reviews.add(jb.toString());
-		     }
+		   
 	     }catch(Exception e){
-	    	 e.printStackTrace();
+	    	
 	     }
 
-	     
+	   }
+	   
 
    }catch(Exception e){
-	  reviews = null;
+	   
+	 
    }
  
 
-    
+    System.out.println(reviews.size());
 	        JSONObject jb = new JSONObject();
 	        jb.put("RATING", rating);
 	        jb.put("VOTES", votes);
@@ -159,8 +167,7 @@ public class Teflon {
 	        jb.put("PROMOURL", promoURL);
 	        jb.put("CATEGORY", category);
 	        jb.put("TYPE",type);
-	        jb.put("PRICE",price);
-	       
+	        jb.put("PRICE",price);       
 			jb.put("REVIEWS", reviews);
 	        jb.put("DOWNLOADTEXT",  downloadtext);
 			return jb;
