@@ -122,14 +122,7 @@ public class Teflon {
 	   MarketHack mh = new MarketHack();
 	  String appID =  mh.getAppID(username, password, packagename);
 	  reviews = mh.getReviews(username, password, appID);
-//	     URL uu = new URL("http://www.appbrain.com/app/"+packagename);
-//	      Document rev = Jsoup.parse(uu,199000);
-//	      Document a = Jsoup.parse(rev.getElementsByClass("comment").html());
-//	      
-//	     Elements ratings = a.getElementsByClass("srating");
-//	     Elements commenter = a.getElementsByClass("commenter");
-//	     Elements comment = a.getElementsByClass("ctext");
-//	     
+
 	   for(int i = 0;i<reviews.size();i++){
 		   JSONArray comment = new JSONArray(reviews.get(i));
 	     try{
@@ -156,7 +149,7 @@ public class Teflon {
    }
  
 
-    System.out.println(reviews.size());
+  
 	        JSONObject jb = new JSONObject();
 	        jb.put("RATING", rating);
 	        jb.put("VOTES", votes);
