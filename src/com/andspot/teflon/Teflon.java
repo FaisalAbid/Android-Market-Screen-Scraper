@@ -117,11 +117,12 @@ public class Teflon {
       String price = dp.text().replace("CA$", "").replace("Buy", "").trim();
       
       ArrayList<String> reviews = new ArrayList<String>();
+      JSONArray metadata = new JSONArray();
    try{
 	   
 	   MarketHack mh = new MarketHack();
-	  String appID =  mh.getAppID(username, password, packagename);
-	  reviews = mh.getReviews(username, password, appID);
+	 metadata =  new JSONArray(mh.getAppID(username, password, packagename));
+	  reviews = mh.getReviews(username, password, metadata.getString(0));
 
 	   for(int i = 0;i<reviews.size();i++){
 		   JSONArray comment = new JSONArray(reviews.get(i));
@@ -163,6 +164,13 @@ public class Teflon {
 	        jb.put("PRICE",price);       
 			jb.put("REVIEWS", reviews);
 	        jb.put("DOWNLOADTEXT",  downloadtext);
+	        try{
+	        jb.put("VERSION", metadata.getString(1));
+	        jb.put("FILESIZE", metadata.getString(2));
+	        }catch(Exception e){
+	            jb.put("VERSION","");
+		        jb.put("FILESIZE", "");
+	        }
 			return jb;
 			
 		} catch (IOException e1) {

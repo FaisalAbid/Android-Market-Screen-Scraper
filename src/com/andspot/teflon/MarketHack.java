@@ -45,15 +45,24 @@ MarketSession session = new MarketSession();
 			             for (int i = 0; i < response.getAppCount(); i++)
 			             {
 			                appID = response.getApp(i).getId();
-			        
+			                
+			                apps.add(appID);
+			                apps.add(response.getApp(i).getVersion());
+			                apps.add(response.getApp(i).getExtendedInfo().getInstallSize()+"");
+			                apps.add(response.getApp(i).getVersionCode()+"");
+			               
+			               
+			                
 			         }
 		         }
 		});
 		session.flush();
 		
-		return  appID;
+		return  new JSONArray(apps).toString();
 	
 	}
+	
+	
 	public ArrayList<String> getAppDetails(final String username,final String password,String packageName){
 		MarketSession session = new MarketSession();
 		
