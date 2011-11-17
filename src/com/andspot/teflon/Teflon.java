@@ -31,14 +31,14 @@ import com.andspot.jsonk.JSONObject;
 
 public class Teflon {
 
-	public JSONObject FindByURL(String url,String username,String password) throws JSONException{
+	public JSONObject FindByURL(String url) throws JSONException{
 		String packagename = url.replace("https://market.android.com/details?id=", "").split("&")[0];
-		return FindByPackageName(packagename,username,password);
+		return FindByPackageName(packagename);
 
 	
 	}
 	
-	public JSONObject FindByPackageName(String packagename,String username,String password) throws JSONException{
+	public JSONObject FindByPackageName(String packagename) throws JSONException{
 		URL u;
 		try {
 			u = new URL("https://market.android.com/details?id="+packagename);
@@ -57,7 +57,7 @@ public class Teflon {
         	 rating = "0";
         	 votes = "0";
         }
-        String appName = document.getElementsByClass("fn").html();
+        String appName = document.getElementsByClass("doc-banner-title").html();
         String desc = document.getElementById("doc-original-text").html();
         String downloadtext = "";
         	
@@ -80,13 +80,19 @@ public class Teflon {
         		}else{
         			downloadtext = "0 - 500";
         		}
-        Document sc = Jsoup.parse(document.getElementsByClass("carousel-page").html());
+        		
+        Document sc = Jsoup.parse(document.getElementsByClass("doc-overview-screenshots").html());
         Elements imgs = sc.select("img");
         ArrayList<String> screenshots = new ArrayList<String>();
         
         for (Element img : imgs) {
             screenshots.add(img.attr("src"));
+            
         }
+        
+        screenshots.remove(0);
+        screenshots.remove(screenshots.size()-1);
+ 
         
         Document ic = Jsoup.parse(document.getElementsByClass("doc-banner-icon").html());
         Elements icons  = ic.select("img");
@@ -101,54 +107,23 @@ public class Teflon {
         for (Element img : promo){
         	promoURL = img.attr("src");
         }
-        
-       Document cr = Jsoup.parse(document.getElementsByAttributeValueMatching("href", "/apps/").get(0).html());
-       int type = 0;
-       if(cr.text().length() == 0){
-    	   type = 1;
-    	   cr = Jsoup.parse(document.getElementsByAttributeValueMatching("href", "/games/").get(0).html());
-       }
-   
- 
-       String category =  cr.text();
+        String category ;
+     
+       Document cr = Jsoup.parse(u,9000);
+       Elements a = cr.getElementsByClass("doc-metadata-list");
+       String contentRating = cr.getElementsByAttributeValue("itemprop", "contentRating").html();
+       String version = cr.getElementsByAttributeValue("itemprop","softwareVersion").html();
+       String lastUpdate = cr.getElementsByAttributeValue("itemprop", "datePublished").html();
+       downloadtext = cr.getElementsByAttributeValue("itemprop", "numDownloads").html();
+       String filesize = cr.getElementsByAttributeValue("itemprop", "fileSize").html();
+       String price = cr.getElementsByAttributeValue("itemprop", "price").html();
+       Elements b=  a.select("a");
+      category = b.get(0).text();
        
-       Document dp = Jsoup.parse(document.getElementsByClass("buy-button-price").get(0).html());
+
+       
    
-      String price = dp.text().replace("CA$", "").replace("Buy", "").trim();
-      
-      ArrayList<String> reviews = new ArrayList<String>();
-      JSONArray metadata = new JSONArray();
-   try{
-	   
-	   MarketHack mh = new MarketHack();
-	 metadata =  new JSONArray(mh.getAppID(username, password, packagename));
-	  reviews = mh.getReviews(username, password, metadata.getString(0));
 
-	   for(int i = 0;i<reviews.size();i++){
-		   JSONArray comment = new JSONArray(reviews.get(i));
-	     try{
-		  
-		    	 JSONObject jb = new JSONObject();
-		    	 //{response.getComments(i).getAuthorName(),response.getComments(i).getText(),response.getComments(i).getRating()+"",response.getComments(i).getCreationTime()+""};
-		    	 String rate = comment.getString(2);
-		    
-		    	 jb.put("Rating", rate);
-		    	 jb.put("Comment", comment.get(1));
-		    	 jb.put("commenter", comment.get(0));
-		    	 reviews.add(jb.toString());
-		   
-	     }catch(Exception e){
-	    	
-	     }
-
-	   }
-	   
-
-   }catch(Exception e){
-	   
-	 
-   }
- 
 
   
 	        JSONObject jb = new JSONObject();
@@ -160,17 +135,13 @@ public class Teflon {
 	        jb.put("ICON", icon);
 	        jb.put("PROMOURL", promoURL);
 	        jb.put("CATEGORY", category);
-	        jb.put("TYPE",type);
-	        jb.put("PRICE",price);       
-			jb.put("REVIEWS", reviews);
+	        jb.put("PRICE",price);      
 	        jb.put("DOWNLOADTEXT",  downloadtext);
-	        try{
-	        jb.put("VERSION", metadata.getString(1));
-	        jb.put("FILESIZE", metadata.getString(2));
-	        }catch(Exception e){
-	            jb.put("VERSION","");
-		        jb.put("FILESIZE", "");
-	        }
+	        jb.put("LASTUPDATE", lastUpdate);
+	        jb.put("CONTENTRATING", contentRating);
+	        jb.put("VERSION", version);
+	        jb.put("FILESIZE", filesize);
+	  
 			return jb;
 			
 		} catch (IOException e1) {

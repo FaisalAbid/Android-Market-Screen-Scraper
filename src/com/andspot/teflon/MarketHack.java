@@ -11,6 +11,7 @@ import com.gc.android.market.api.MarketSession.Callback;
 import com.gc.android.market.api.model.Market;
 import com.gc.android.market.api.model.Market.AppType;
 import com.gc.android.market.api.model.Market.AppsRequest;
+import com.gc.android.market.api.model.Market.AppsRequest.OrderType;
 import com.gc.android.market.api.model.Market.AppsRequest.ViewType;
 import com.gc.android.market.api.model.Market.AppsResponse;
 import com.gc.android.market.api.model.Market.CommentsRequest;
@@ -23,15 +24,16 @@ import com.gc.android.market.api.model.Market.ResponseContext;
 
 public class MarketHack {
 
+	private int numS = 0;
+	private String appID = "";
+	
 	public MarketHack(){
 		
 	}
-	int numS = 0;
-	String appID = "";
+
+	
 	public String getAppID(final String username,final String password,final String packageName){
-MarketSession session = new MarketSession();
-		
-		
+		MarketSession session = new MarketSession();
 		session.login(username,password);
 		session.getContext().setAndroidId("354957032521380");
 		String query = packageName;
@@ -44,15 +46,12 @@ MarketSession session = new MarketSession();
 		        	 
 			             for (int i = 0; i < response.getAppCount(); i++)
 			             {
-			                appID = response.getApp(i).getId();
-			                
+			                appID = response.getApp(i).getId();            
 			                apps.add(appID);
 			                apps.add(response.getApp(i).getVersion());
 			                apps.add(response.getApp(i).getExtendedInfo().getInstallSize()+"");
 			                apps.add(response.getApp(i).getVersionCode()+"");
-			               
-			               
-			                
+        
 			         }
 		         }
 		});
@@ -61,6 +60,7 @@ MarketSession session = new MarketSession();
 		return  new JSONArray(apps).toString();
 	
 	}
+	
 	
 	
 	public ArrayList<String> getAppDetails(final String username,final String password,String packageName){
@@ -105,14 +105,16 @@ MarketSession session = new MarketSession();
 		});
 		session.flush();
 		
-		System.out.println(apps.size());
+		
 		return  apps;
 	
 	}
 	
+	
 	public ArrayList<String> getReviews(String username,String password,String appID){
 		final ArrayList<String> apps = new ArrayList<String>();
-	MarketSession session = new MarketSession();
+		
+		MarketSession session = new MarketSession();
 		session.login(username,password);
 		session.getContext().setAndroidId("354957032521380");
 		 CommentsRequest commentsRequest = CommentsRequest.newBuilder()
@@ -141,11 +143,42 @@ MarketSession session = new MarketSession();
 		session.flush();
 		return apps;
 	}
-	public String GetPaid(String username,String password,long offset,String category){
+	
+	public String GetPaid(String username,String password,long offset,String category,int viewType,int orderType){
+		ViewType vt = ViewType.PAID;
+		OrderType ot = OrderType.NONE;
+		if(viewType == 0){
+			vt = ViewType.PAID;
+		}else if(viewType == 1){
+			vt = ViewType.FREE;
+		}else if(viewType == 2){
+			vt = ViewType.ALL;
+		}
+		
+		if(orderType == 0){
+			ot = OrderType.NONE;
+		}else if(orderType == 1){
+			ot = OrderType.NEWEST;
+		}else if(orderType == 2){
+			ot = OrderType.POPULAR;
+		}else if(orderType == 3){
+			ot = OrderType.FEATURED;
+		}
+		
+		
 		MarketSession session = new MarketSession();
 		session.login(username,password);	
 		session.getContext().setAndroidId("354957032521380");
-		Market.AppsRequest appsRequest = Market.AppsRequest.newBuilder().setStartIndex(offset).setViewType(ViewType.PAID).setEntriesCount(10).setWithExtendedInfo(true).build();
+		session.getContext().setDeviceAndSdkVersion("sapphire:7");
+		Market.AppsRequest appsRequest;
+		if(category == ""){
+			appsRequest  = Market.AppsRequest.newBuilder().setStartIndex(offset).setAppType(AppType.GAME).setViewType(vt).setOrderType(ot).setEntriesCount(10).setWithExtendedInfo(true).build();
+			
+		}else{
+			appsRequest = Market.AppsRequest.newBuilder().setStartIndex(offset).setAppType(AppType.GAME).setCategoryId(category).setViewType(vt).setOrderType(ot).setEntriesCount(10).setWithExtendedInfo(true).build();
+			
+		}
+	
 		final ArrayList<String> apps = new ArrayList<String>();     
 		session.append(appsRequest, new Callback<AppsResponse>() {
 		         @Override
@@ -175,7 +208,7 @@ MarketSession session = new MarketSession();
 		         }
 		});
 		session.flush();
-		System.out.println( new JSONArray(apps).toString());
+	
 		return new JSONArray(apps).toString();
 	}
 }
